@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Hanukkah Fundraising</title>
+<style>
+body { font-family: Arial; background:#f2f2f2; text-align:center; }
+h1 { font-size:48px; }
+.meters { display:flex; justify-content:center; gap:20px; margin-top:40px; flex-wrap:wrap; }
+.meter { width:120px; height:400px; background:white; border:3px solid #333; border-radius:8px; position:relative; overflow:hidden; }
+.fill { position:absolute; bottom:0; width:100%; background:#1e90ff; transition:0.5s; }
+.name { margin-top:10px; font-size:22px; }
+.total { font-size:40px; margin-top:20px; }
+</style>
+</head>
+<body>
+<h1>Hanukkah Fundraising</h1>
+<div class="total" id="grandTotal">$0</div>
+<div class="meters" id="meterContainer"></div>
+
+<script>
+let classes=[
+ {name:"H1", amount:0},
+ {name:"H2", amount:0},
+ {name:"V1", amount:0},
+ {name:"V2", amount:0},
+ {name:"Z1", amount:0},
+ {name:"Z2", amount:0},
+ {name:"H3", amount:0},
+ {name:"H4", amount:0}
+];
+
+function render(){
+ let total = classes.reduce((a,b)=>a+b.amount,0);
+ document.getElementById("grandTotal").innerText="$"+total;
+ let c=document.getElementById("meterContainer");
+ c.innerHTML="";
+ let max = Math.max(...classes.map(x=>x.amount),1);
+ classes.sort((a,b)=>b.amount-a.amount);
+ classes.forEach(cl=>{
+   let filled = (cl.amount/max)*100;
+   c.innerHTML += `
+   <div>
+     <div class="meter">
+       <div class="fill" style="height:${filled}%;"></div>
+     </div>
+     <div class="name">${cl.name}: $${cl.amount}</div>
+   </div>`;
+ });
+}
+render();
+</script>
+
+</body>
+</html>
