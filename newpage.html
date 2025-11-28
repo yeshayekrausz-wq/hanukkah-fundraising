@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>חנוכה געלט - חדר דאַשבאָרד</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: #020617;
+      color: #f9fafb;
+      overflow: hidden;
+    }
+
+    #app {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      z-index: 0;
+    }
+
+    /* Background image / video layer */
+    .background-video,
+    .background-image {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+
+    .background-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(251, 191, 36, 0.3), transparent 55%),
+                  radial-gradient(circle at bottom, rgba(59, 130, 246, 0.35), transparent 55%),
+                  rgba(15, 23, 42, 0.7);
+      z-index: -1;
+    }
+
+    /* Total header */
+    .total-header {
+      text-align: center;
+      padding: 0.6rem 1rem 0.2rem;
+      font-size: clamp(2.2rem, 3.4vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-shadow: 0 0 20px rgba(15, 23, 42, 0.9);
+    }
+
+    .total-header span {
+      display: inline-block;
+      margin-inline-start: 0.5rem;
+      font-size: 0.9em;
+      color: #facc15;
+      text-shadow: 0 0 14px rgba(202, 138, 4, 0.9);
+    }
+
+    .sub-header {
+      text-align: center;
+      font-size: clamp(1rem, 1.4vw, 1.4rem);
+      opacity: 0.85;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Layout: meters + admin */
+    .main-layout {
+      display: flex;
+      flex: 1;
+      padding: 0.5rem 0.75rem 0.75rem;
+      gap: 0.75rem;
+      align-items: stretch;
+    }
+
+    .meters-section {
+      flex: 1.8;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .meters-container {
+      height: 100%;
+      display: flex;
+      flex-direction: row-reverse; /* מערסטע געלט — מערסט רעכטס */
+      align-items: flex-end;
+      justify-content: space-evenly;
+      gap: 0.5rem;
+      padding: 0.25rem 0.5rem 0.5rem;
+    }
+
+    .meter-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      min-width: 70px;
+      max-width: 120px;
+    }
+
+    .meter-amount {
+      font-size: clamp(1.1rem, 1.3vw, 1.5rem);
+      font-weight: 700;
+      margin-bottom: 0.15rem;
+      text-shadow: 0 0 10px rgba(15, 23, 42, 0.9);
+    }
+
+    .meter-wrapper {
+      position: relative;
+      width: clamp(45px, 4vw, 60px);
+      height: min(55vh, 430px);
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.7));
+      box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2),
+                  0 18px 40px rgba(15, 23, 42, 0.9) inset;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .meter-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 0%;
+      border-radius: 999px 999px 0 0;
+      background: linear-gradient(180deg, #facc15, #f97316);
+      box-shadow: 0 0 20px rgba(250, 204, 21, 0.9);
+      transition: height 0.7s ease-out;
+    }
+
+    .meter-scale-mark {
+      position: absolute;
+      left: 22%;
+      width: 56%;
+      height: 1px;
+      background: rgba(148, 163, 184, 0.6);
+      opacity: 0.4;
+    }
+
+    .meter-scale-mark:nth-child(1) { bottom: 20%; }
+    .meter-scale-mark:nth-child(2) { bottom: 40%; }
+    .meter-scale-mark:nth-child(3) { bottom: 60%; }
+    .meter-scale-mark:nth-child(4) { bottom: 80%; }
+
+    .meter-class-name {
+      margin-top: 0.25rem;
+      font-size: clamp(1.4rem, 1.6vw, 1.8rem);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-shadow: 0 0 10px rgba(15, 23, 42, 0.9);
+    }
+
+    /* Admin panel */
+    .admin-panel {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.94);
+      border-radius: 1rem;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
+      padding: 0.75rem 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      max-width: 420px;
+    }
+
+    .admin-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 0.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .admin-subtitle {
+      font-size: 0.85rem;
+      opacity: 0.8;
+      margin-bottom: 0.25rem;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 0.4rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    label {
+      font-size: 0.88rem;
+    }
+
+    select,
+    input[type="number"],
+    input[type="file"] {
+      font: inherit;
+      padding: 0.25rem 0.35rem;
+      border-radius: 0.4rem;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: rgba(15, 23, 42, 0.85);
+      color: #e5e7eb;
+    }
+
+    input[type="number"] {
+      max-width: 120px;
+      direction: ltr;
+    }
+
+    button {
+      font: inherit;
+      padding: 0.28rem 0.7rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      background: linear-gradient(90deg, #f97316, #facc15);
+      color: #0f172a;
+      font-weight: 700;
+      box-shadow: 0 10px 30px rgba(248, 250, 252, 0.2);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.1s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 35px rgba(248, 250, 252, 0.3);
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.8);
+      opacity: 0.95;
+    }
+
+    .button-secondary {
+      background: transparent;
+      border: 1px solid rgba(148, 163, 184, 0.9);
+      color: #e5e7eb;
+      box-shadow: none;
+    }
+
+    .button-secondary:hover {
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.9);
+    }
+
+    .totals-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+
+    .totals-table th,
+    .totals-table td {
+      padding: 0.18rem 0.25rem;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.9);
+      text-align: center;
+    }
+
+    .totals-table th {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.75;
+    }
+
+    .totals-table td.amount-cell {
+      font-weight: 600;
+      direction: ltr;
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+
+    .admin-footer {
+      margin-top: auto;
+      font-size: 0.78rem;
+      opacity: 0.7;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+
+    .danger {
+      color: #f97373;
+    }
+
+    /* Display / projector mode (hide admin) */
+    .display-mode .admin-panel {
+      display: none;
+    }
+
+    .display-mode .main-layout {
+      padding-inline: 1.25rem;
+    }
+
+    .display-mode .meters-section {
+      flex: 1;
+    }
+
+    .display-mode .sub-header {
+      margin-bottom: 1rem;
+    }
+
+    .display-mode #openDisplayBtn {
+      display: none;
+    }
+
+    /* Small screens */
+    @media (max-width: 900px) {
+      .main-layout {
+        flex-direction: column;
+      }
+      .admin-panel {
+        max-width: 100%;
+        order: -1;
+      }
+      .meters-container {
+        height: 45vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background layers -->
+  <video id="bgVideo" class="background-video" autoplay muted loop playsinline style="display:none"></video>
+  <img id="bgImage" class="background-image" alt="" style="display:none" />
+  <div class="background-overlay"></div>
+
+  <div id="app">
+    <header class="total-header">
+      צוזאמען געזאמלט:
+      <span id="totalAmount">$0</span>
+    </header>
+    <div class="sub-header">
+      חנוכה געלט - חדר קאמפיין
+    </div>
+
+    <div class="main-layout">
+      <!-- Meters / thermometer section -->
+      <section class="meters-section">
+        <div id="metersContainer" class="meters-container">
+          <!-- JS וועט דא אריינלייגן די מעסטערס -->
+        </div>
+      </section>
+
+      <!-- Admin panel -->
+      <aside class="admin-panel" id="adminPanel">
+        <div class="admin-title">
+          <span>עדמין - אַרײַן לייגן געלט</span>
+          <button id="openDisplayBtn" class="button-secondary" type="button">
+            עפֿענען פראדזשעקטאר VIEW
+          </button>
+        </div>
+        <div class="admin-subtitle">
+          יעדע טאג לייג צו וויפיל דאלער די כתה האט צוזאמען אריין געברענגט.
+        </div>
+
+        <div class="form-row">
+          <label for="classSelect">כתה:</label>
+          <select id="classSelect">
+            <option value="h1">ה-1</option>
+            <option value="h2">ה-2</option>
+            <option value="v1">ו-1</option>
+            <option value="v2">ו-2</option>
+            <option value="z1">ז-1</option>
+            <option value="z2">ז-2</option>
+            <option value="ch1">ח-1</option>
+            <option value="ch2">ח-2</option>
+          </select>
+
+          <label for="amountInput">סכום ($):</label>
+          <input id="amountInput" type="number" step="1" min="0" />
+
+          <button id="addAmountBtn" type="button">לייג צו</button>
+        </div>
+
+        <div style="font-size:0.85rem; opacity:0.8; margin-bottom:0.35rem;">
+          נומערן לויפן אויף דאלער (Ohne סענטס). דו קענסט לייגן צו צוויי־דריי מאל א טאג.
+        </div>
+
+        <hr style="border: none; border-top: 1px solid rgba(30,41,59,0.9); margin: 0.25rem 0 0.4rem;" />
+
+        <div class="admin-subtitle">
+          כתה־סכומים (לויט די לעצטע דאַטן):
+        </div>
+        <table class="totals-table" id="totalsTable">
+          <thead>
+            <tr>
+              <th>כתה</th>
+              <th>סכום ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JS וועט אפדעיטן -->
+          </tbody>
+        </table>
+
+        <hr style="border: none; border-top: 1px solid rgba(30,41,59,0.9); margin: 0.4rem 0;" />
+
+        <div class="admin-subtitle">
+          בעקגראַונד בילד / ווידיא פארן פראדזשעקטאר:
+        </div>
+
+        <div class="form-row">
+          <label for="bgImageInput">בילד:</label>
+          <input type="file" id="bgImageInput" accept="image/*" />
+        </div>
+
+        <div class="form-row">
+          <label for="bgVideoInput">ווידיא:</label>
+          <input type="file" id="bgVideoInput" accept="video/*" />
+        </div>
+
+        <div class="form-row">
+          <button id="clearBgBtn" class="button-secondary" type="button">
+            אוועקנעמען בעקגראַונד
+          </button>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid rgba(30,41,59,0.9); margin: 0.4rem 0;" />
+
+        <div class="form-row">
+          <button id="resetAllBtn" type="button">
+            Reset אלע סכומים
+          </button>
+        </div>
+
+        <div class="admin-footer">
+          <span>דאטא ווערט געשפייכערט לוקאל אויף דעם קאמפיוטער.</span>
+          <span class="danger">היט זיך ביים Reset – אלעס גייט צוריק אויף $0.</span>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // ----- DATA STRUCTURE -----
+    const CLASS_CONFIG = [
+      { id: "h1", name: "ה-1" },
+      { id: "h2", name: "ה-2" },
+      { id: "v1", name: "ו-1" },
+      { id: "v2", name: "ו-2" },
+      { id: "z1", name: "ז-1" },
+      { id: "z2", name: "ז-2" },
+      { id: "ch1", name: "ח-1" },
+      { id: "ch2", name: "ח-2" }
+    ];
+
+    let classTotals = {};
+
+    const STORAGE_KEY = "chanukah_money_totals_v1";
+
+    const metersContainer = document.getElementById("metersContainer");
+    const totalAmountEl = document.getElementById("totalAmount");
+    const totalsTableBody = document.querySelector("#totalsTable tbody");
+
+    const classSelect = document.getElementById("classSelect");
+    const amountInput = document.getElementById("amountInput");
+    const addAmountBtn = document.getElementById("addAmountBtn");
+
+    const bgVideo = document.getElementById("bgVideo");
+    const bgImage = document.getElementById("bgImage");
+    const bgImageInput = document.getElementById("bgImageInput");
+    const bgVideoInput = document.getElementById("bgVideoInput");
+    const clearBgBtn = document.getElementById("clearBgBtn");
+    const resetAllBtn = document.getElementById("resetAllBtn");
+    const openDisplayBtn = document.getElementById("openDisplayBtn");
+
+    // ----- INIT -----
+    function loadTotals() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          classTotals = JSON.parse(saved);
+        } catch {
+          classTotals = {};
+        }
+      }
+      // Make sure every class exists
+      CLASS_CONFIG.forEach(cfg => {
+        if (typeof classTotals[cfg.id] !== "number") {
+          classTotals[cfg.id] = 0;
+        }
+      });
+    }
+
+    function saveTotals() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(classTotals));
+    }
+
+    function getTotal() {
+      return Object.values(classTotals).reduce((sum, v) => sum + v, 0);
+    }
+
+    function formatDollar(value) {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0
+      }).format(value);
+    }
+
+    // ----- RENDERING -----
+    function renderAll() {
+      renderMeters();
+      renderTable();
+      renderTotal();
+    }
+
+    function renderTotal() {
+      const total = getTotal();
+      totalAmountEl.textContent = formatDollar(total);
+    }
+
+    function renderTable() {
+      totalsTableBody.innerHTML = "";
+      CLASS_CONFIG.forEach(cfg => {
+        const tr = document.createElement("tr");
+        const tdName = document.createElement("td");
+        tdName.textContent = cfg.name;
+        const tdAmount = document.createElement("td");
+        tdAmount.className = "amount-cell";
+        tdAmount.textContent = formatDollar(classTotals[cfg.id] || 0);
+        tr.appendChild(tdName);
+        tr.appendChild(tdAmount);
+        totalsTableBody.appendChild(tr);
+      });
+    }
+
+    function renderMeters() {
+      metersContainer.innerHTML = "";
+      // Sort classes by total DESC
+      const sorted = [...CLASS_CONFIG].sort((a, b) => {
+        return (classTotals[b.id] || 0) - (classTotals[a.id] || 0);
+      });
+
+      const maxValue = Math.max(...sorted.map(cfg => classTotals[cfg.id] || 0), 0) || 0;
+
+      sorted.forEach(cfg => {
+        const amount = classTotals[cfg.id] || 0;
+        const card = document.createElement("div");
+        card.className = "meter-card";
+
+        const amountLabel = document.createElement("div");
+        amountLabel.className = "meter-amount";
+        amountLabel.textContent = formatDollar(amount);
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "meter-wrapper";
+
+        // scale marks 4 lines
+        for (let i = 0; i < 4; i++) {
+          const mark = document.createElement("div");
+          mark.className = "meter-scale-mark";
+          wrapper.appendChild(mark);
+        }
+
+        const fill = document.createElement("div");
+        fill.className = "meter-fill";
+
+        let heightPercent = 0;
+        if (maxValue > 0) {
+          // highest meter goes to 90% height
+          heightPercent = (amount / maxValue) * 90;
+        }
+        // minimal fill if 0? leave at 0.
+        requestAnimationFrame(() => {
+          fill.style.height = heightPercent.toFixed(1) + "%";
+        });
+
+        wrapper.appendChild(fill);
+
+        const nameLabel = document.createElement("div");
+        nameLabel.className = "meter-class-name";
+        nameLabel.textContent = cfg.name;
+
+        card.appendChild(amountLabel);
+        card.appendChild(wrapper);
+        card.appendChild(nameLabel);
+
+        metersContainer.appendChild(card);
+      });
+    }
+
+    // ----- EVENTS -----
+    addAmountBtn.addEventListener("click", () => {
+      const classId = classSelect.value;
+      const rawVal = amountInput.value.trim();
+      if (!rawVal) return;
+      const val = parseFloat(rawVal);
+      if (isNaN(val) || val <= 0) return;
+      if (typeof classTotals[classId] !== "number") {
+        classTotals[classId] = 0;
+      }
+      // we use only dollars (round)
+      classTotals[classId] = Math.round(classTotals[classId] + val);
+      amountInput.value = "";
+      saveTotals();
+      renderAll();
+    });
+
+    amountInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        addAmountBtn.click();
+      }
+    });
+
+    resetAllBtn.addEventListener("click", () => {
+      const ok = confirm("ביסטו זיכער אז דו ווילסט Reset אלעס אויף $0?");
+      if (!ok) return;
+      CLASS_CONFIG.forEach(cfg => {
+        classTotals[cfg.id] = 0;
+      });
+      saveTotals();
+      renderAll();
+    });
+
+    // Background image / video
+    bgImageInput.addEventListener("change", () => {
+      const file = bgImageInput.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      bgImage.src = url;
+      bgImage.style.display = "block";
+      // hide video
+      bgVideo.pause();
+      bgVideo.removeAttribute("src");
+      bgVideo.load();
+      bgVideo.style.display = "none";
+    });
+
+    bgVideoInput.addEventListener("change", () => {
+      const file = bgVideoInput.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      bgVideo.src = url;
+      bgVideo.style.display = "block";
+      bgVideo.play().catch(() => {});
+      // hide image
+      bgImage.removeAttribute("src");
+      bgImage.style.display = "none";
+    });
+
+    clearBgBtn.addEventListener("click", () => {
+      bgVideo.pause();
+      bgVideo.removeAttribute("src");
+      bgVideo.load();
+      bgVideo.style.display = "none";
+
+      bgImage.removeAttribute("src");
+      bgImage.style.display = "none";
+    });
+
+    // Open projector-only view
+    openDisplayBtn.addEventListener("click", () => {
+      const url = window.location.href.split("?")[0] + "?mode=display";
+      window.open(url, "_blank");
+    });
+
+    // Detect display mode (for projector): hide admin
+    function applyDisplayModeIfNeeded() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("mode") === "display") {
+        document.body.classList.add("display-mode");
+      }
+    }
+
+    // ----- START -----
+    loadTotals();
+    applyDisplayModeIfNeeded();
+    renderAll();
+  </script>
+</body>
+</html>
